@@ -1,0 +1,26 @@
+const sidebar=function(){const e="body--sidebar-opened",t="sidebar--opened",a="sidebar-tabs__item--active",o="sidebar-match-card--selected",i="competition-logo--selected",s="dropdown-item--selected",d=".sidebar-competition-dropdown"
+d
+const V=".sidebar-competition-dropdown .competition-dropdown__value .competition-logo"
+d
+const B=".sidebar-competition-dropdown .competition-dropdown__items .dropdown-item",D=".matchweek-nav",n=".matchweek-nav__item--prev",r=".matchweek-nav__item--next",c=".matchweek-nav__item--latest",l=".sidebar__trigger",m=".sidebar-toggle",b=".highlight-swiper",G=b+" .videos-list",H=".sidebar-stat-dropdown",h="matches",L="table",O="stats"
+let p,g,u,W,z,f=[],F,v="j1",w=h,k,C,_="goals",I=!0,J=!0,S=!1,y,E,x,P,j,M,q,R,K,N
+function T(e,t,a){e=$(e).data("stage")
+"latest"===e?(C=void 0,localStorage.removeItem("sidebar.matchweek")):(C=e,localStorage.setItem("sidebar.matchweek",C)),sendElementClickEvent("sidebar-matchweek","sidebar-matchweek",a),A()}function U(){x.off("mouseleave"),q&&(q.removeAttribute("data-show"),q=null),M&&(M.destroy(),M=null),R&&R.destroy(),$(G).empty(),k=null}function X(e){clearTimeout(K),K=setTimeout(()=>{var e,t,a,o
+isMobile()||(e=(a=$(this)).data("mid"),o=a.data("home-score"),t=a.data("away-socre"),k!==e&&(k=e,U(),o||t)&&(o=a,q=x.get(0),M=Popper.createPopper(o.get(0),q,{placement:"right-start",modifiers:[{name:"offset",options:{offset:[0,24]}},{name:"preventOverflow",options:{tether:!1}}]}),q.setAttribute("data-show",""),M.update(),x.on("mouseleave",U),t=e,S||(S=!0,a=`/match/data/${t}/live/?sidebar=1`,o="/widgets/sidebar/match/info/",params={mid:t},o+=urlSearchQuery(params),x.addClass("loading"),Promise.all([ajaxRequest(o),ajaxRequest(a)]).then(e=>{P.empty(),P.append(e[0]),j.empty(),j.append(e[1]),S=!1,x.removeClass("loading"),M&&M.update()}).catch(e=>console.error(e))),t=e,(R=new GoalHighlights(b,{spaceBetween:16})).setWrapperSelector(".match-highlights"),R.setMode("sidebar"),R.setMatch(t),R.loadVideos(0,!0)))},500)}function Y(e){var t=$(this)
+if(y&&y.length)for(const a of y)$(a).removeClass(o)
+t.addClass(o)
+t=t.data("mid")
+sendElementClickEvent("sidebar-match-card",t,".sidebar-match-card")}function Z(){_=N.val(),localStorage.setItem("sidebar.stat",_),sendElementClickEvent("sidebar-stats-dropdown",_,H),A()}function ee(){switch(E=null,w){case h:$(n).click(function(e){T(this,0,n)}),$(r).click(function(e){T(this,0,r)}),$(c).click(function(e){T(this,0,c)}),x=u.find("#match-info-modal"),P=x.find(".match-summary"),j=x.find(".match-live")
+for(const e of y=u.find(".sidebar-match-card"))$(e).click(Y),$(e).on("mouseenter",X),e.classList.contains(o)&&(E=e,oe())
+break
+case L:break
+case O:(N=$(H)).change(Z)}}function A(){w===h&&$(D).addClass("disabled")
+var e="/widgets/sidebar/",t={source:w,competition:v}
+void 0!==C&&(t.stage=C),void 0!==_&&(t.stat=_),"undefined"!=typeof matchId&&(t.match_page=matchId),e+=urlSearchQuery(t),ajaxRequest(e).then(e=>{u.empty(),u.append(e),ee()}).catch(e=>console.error(e))}function te(){for(const t of f){var e=$(t)
+e.data("tab")!==w?e.removeClass(a):e.addClass(a)}}function ae(e){e.stopPropagation(),w=$(this).data("tab"),localStorage.setItem("sidebar.tab",w),sendElementClickEvent("sidebar-tab",w,".sidebar-tabs__item"),te(),A()}function oe(){I&&E&&setTimeout(()=>{E.scrollIntoView({behavior:"smooth",block:"center",inline:"end"})},500)}function ie(){I?(p.addClass(e),g.addClass(t)):(p.removeClass(e),g.removeClass(t)),I&&J&&(J=!1,A()),oe()}function Q(e,t){e&&e.stopPropagation(),I=void 0!==t?t:!I,localStorage.setItem("sidebar.expanded",I),ie()}function se(e){v=e,localStorage.setItem("sidebar.competition",v),C=void 0,localStorage.removeItem("sidebar.matchweek"),A()}function de(e=!1){var t=localStorage.getItem("sidebar.expanded"),t=(t&&(I="true"===t),localStorage.getItem("sidebar.competition")),t=(t&&(v=t),localStorage.getItem("sidebar.tab")),t=(t&&(w=t),localStorage.getItem("sidebar.matchweek")),t=(null===t||"undefined"===t?(C=void 0,localStorage.removeItem("sidebar.matchweek")):C=t,localStorage.getItem("sidebar.stat"))
+t&&(_=t),ie(),$(V).each(function(){var e=$(this)
+e.hasClass("competition-logo--"+v)?e.addClass(i):e.removeClass(i)}),$(B).each(function(){var e=$(this)
+e.data("value")===v?e.addClass(s):e.removeClass(s)}),te(),!0===e&&A()}return{init:function(){p=$("body"),g=$(".sidebar"),u=$(".sidebar__body"),z=$(m),W=$(l),F=$(".sidebar-tabs"),f=F.find(".sidebar-tabs__item"),de(),isMobile()&&Q(null,!1),z.click(e=>{Q(e),sendElementClickEvent("sidebar-toggle","sidebar-toggle",m)}),W.click(e=>{Q(e),sendElementClickEvent("sidebar-trigger","sidebar-trigger",l)})
+for(const e of f)$(e).click(ae)
+competitionDropdown.init(d,se)},refresh:de}}()
+sidebar.init()
