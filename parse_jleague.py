@@ -2,49 +2,69 @@ from typing import List
 
 from requests_html import HTMLResponse, HTMLSession
 
-URL_SITE = "https://www.jleague.co/"
-
 
 def get_page_as_response(url: str) -> HTMLResponse:
+    """Try to get a response from a given URL
+
+    Args:
+        url (str): site URL
+
+    Returns:
+        HTMLResponse: Response object with (JS). Returns rendered response
+    """
     try:
         session = HTMLSession()
         response = session.get(url)
         response.html.render(sleep=1, scrolldown=2)
         session.close()
         return response
-    except Exception as e:
-        print(f"Error rendering: {e}")
+    except Exception as error:
+        print(f"Ошибка в получении или рендеринге запроса: {error}")
 
 
 def get_links(response: HTMLResponse) -> List[str]:
-    first_block = response.html.find("div.games-list", first=True)
-    if first_block:
-        events_links = list(first_block.links)
-        if events_links:
-            return events_links
-    return None
+    """Try to get links on main page
+
+    Args:
+        response (HTMLResponse): Response object
+
+    Returns:
+        List[str]: List with links
+    """
+    try:
+        first_block = response.html.find("div.games-list", first=True)
+        if first_block:
+            events_links = list(first_block.links)
+            if events_links:
+                return events_links
+        return None
+    except Exception as error:
+        print(f"Ошибка в получении ссылок на события: {error}")
 
 
 def check_links(response: HTMLResponse) -> List[str]:
-    match_info = []
-    teams = response.html.find("div.summary-teams", first=True)
-    team_1, team_2, _ = teams.text.split("\n")
-    match_info.append(team_1 + " VS " + team_2)
-    extra_block = response.html.find("div.match-extra-info-item")
-    flag = False
-    for info in extra_block:
-        label, value = info.text.split("\n")
-        if label.startswith("Temperature"):
-            match_info.append(value)
-        if label == "Referee" and value == "Koichiro FUKUSHIMA":
-            flag = True
-            match_info.append(value)
-    if flag:
-        return match_info
-    return None
+    """Finding the right referee
 
+    Args:
+        response (HTMLResponse): Response object
 
-rs = get_page_as_response(URL_SITE)
-game_links = get_links(rs)
-# rs = get_page_as_response("https://www.jleague.co/match/j1/2023092308/")
-print(get_links(rs))
+    Returns:
+        List[str]: List with match information
+    """
+    try:
+        match_info = []
+        teams = response.html.find("div.summary-teams", first=True)
+        team_1, team_2, _ = teams.text.split("\n")
+        match_info.append(team_1 + " VS " + team_2)
+        extra_block = response.html.find("div.match-extra-info-item")
+        flag = False
+        for info in extra_block:
+            label, value = info.text.split("\n")
+            if label == "Referee" and value == "Koichiro FUKUSHIMA":
+                flag = True
+                match_info.append(value)
+        if flag:
+            return match_info
+        return None
+    except Exception as error:
+        print(f"Ошибка в получении информации о событии: {error}")
