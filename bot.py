@@ -73,15 +73,15 @@ def main():
             parse_events = get_links(response)
             logger.debug("Проверка прошла")
             if parse_events:
-                logger.debug(f'Обнаружены линки на события: {parse_events}')
+                logger.debug(f"Обнаружены линки на события: {parse_events}")
                 for link in parse_events:
-                    logger.debug(f'Проверяем линк: {link}')
+                    logger.debug(f"Проверяем линк: {link}")
                     event_check = check_links(get_page_as_response(URL_BET + link))
                     if event_check:
                         match_info = (
                             f"Команды: {event_check[0]}\nРефери: {event_check[1]}"
                         )
-                        logger.debug(f'Обнаружено нужное событие: {match_info}')
+                        logger.debug(f"Обнаружено нужное событие: {match_info}")
                         trend_info = get_trends(get_page_as_response(URL_TREND))
                         message = f"Внимание!\n\n{match_info}\n\n{trend_info}"
                         for user in USER_IDS:

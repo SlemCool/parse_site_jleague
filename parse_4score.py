@@ -1,4 +1,5 @@
 from typing import List
+
 from requests_html import HTMLResponse
 
 
