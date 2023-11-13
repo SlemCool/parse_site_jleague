@@ -62,7 +62,7 @@ def main():
         raise ValueError("Отсутствует хотя бы одна переменная окружения!")
     logger.debug("Переменные прошли проверку")
     bot = TeleBot(TELEGRAM_TOKEN)
-    message = "Бот приступает к патрулированию.\n\n\t" + generate_horoscope(GIGA_TOKEN)
+    message = "Бот приступает к патрулированию.\n\n\t\U0000264D " + generate_horoscope(GIGA_TOKEN)
     for user in USER_IDS:
         send_message(bot, message, USER_IDS[user])
     logger.debug("Пробное сообщение отправлено")
@@ -78,12 +78,10 @@ def main():
                     logger.debug(f"Проверяем линк: {link}")
                     event_check = check_links(get_page_as_response(URL_BET + link))
                     if event_check:
-                        match_info = (
-                            f"Команды: {event_check[0]}\nРефери: {event_check[1]}"
-                        )
+                        match_info = f"\U000026BD Команды: {event_check[0]}\n\U0001F525 Рефери: {event_check[1]}"
                         logger.debug(f"Обнаружено нужное событие: {match_info}")
                         trend_info = get_trends(get_page_as_response(URL_TREND))
-                        message = f"Внимание!\n\n{match_info}\n\n{trend_info}"
+                        message = f"\U000026A0 Внимание \U000026A0\n\n{match_info}\n\n\U0001F4C8 Тренды для рефери:\n{trend_info}"
                         for user in USER_IDS:
                             send_message(bot, message, USER_IDS[user])
             else:

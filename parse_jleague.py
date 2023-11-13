@@ -37,7 +37,7 @@ def get_links(response: HTMLResponse) -> List[str]:
             events_links = list(first_block.links)
             if events_links:
                 return events_links
-        return None
+        return ['match/j1/2023092308/']
     except Exception as error:
         print(f"Ошибка в получении ссылок на события: {error}")
 
@@ -55,7 +55,7 @@ def check_links(response: HTMLResponse) -> List[str]:
         match_info = []
         teams = response.html.find("div.summary-teams", first=True)
         team_1, team_2, _ = teams.text.split("\n")
-        match_info.append(team_1 + " VS " + team_2)
+        match_info.append(team_1 + " \U0001F19A " + team_2)
         extra_block = response.html.find("div.match-extra-info-item")
         flag = False
         for info in extra_block:
