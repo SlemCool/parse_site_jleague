@@ -70,3 +70,29 @@ def check_links(response: HTMLResponse) -> List[str]:
         return None
     except Exception as error:
         logger.error(f"Ошибка в получении информации о событии: {error}")
+
+
+def get_links_from_fixtures(response: HTMLResponse) -> List[str]:
+    """Try to get links on main page
+
+    Args:
+        response (HTMLResponse): Response object
+
+    Returns:
+        List[str]: List with links
+    """
+    try:
+        events = response.html.find("a.match-link")
+        if events:
+            events_links = [list(event.links)[0] for event in events]
+            print(events_links)
+            print(len(events_links))
+            if events_links:
+                return events_links
+        return None
+    except Exception as error:
+        logger.error(f"Ошибка в получении ссылок на события: {error}")
+        
+
+url = 'https://www.jleague.co/fixtures/stage/j1/2023/32/all/'
+get_links_from_fixtures(get_page_as_response(url))
