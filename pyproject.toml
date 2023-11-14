@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "dima-proj"
+name = "parse-site-jleague"
 version = "0.1.0"
 description = ""
-authors = ["Андрей Кагадий <kagadi.a@gmail.com>"]
+authors = ["Andrey Kagadi <kagadi.a@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]

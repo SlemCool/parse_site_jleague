@@ -2,6 +2,8 @@ from typing import List
 
 from requests_html import HTMLResponse, HTMLSession
 
+from log import logger
+
 
 def get_page_as_response(url: str) -> HTMLResponse:
     """Try to get a response from a given URL
@@ -19,7 +21,7 @@ def get_page_as_response(url: str) -> HTMLResponse:
         session.close()
         return response
     except Exception as error:
-        print(f"Ошибка в получении или рендеринге запроса: {error}")
+        logger.error(f"Ошибка в получении или рендеринге запроса: {error}")
 
 
 def get_links(response: HTMLResponse) -> List[str]:
@@ -37,9 +39,9 @@ def get_links(response: HTMLResponse) -> List[str]:
             events_links = list(first_block.links)
             if events_links:
                 return events_links
-        return ['match/j1/2023092308/']
+        return None
     except Exception as error:
-        print(f"Ошибка в получении ссылок на события: {error}")
+        logger.error(f"Ошибка в получении ссылок на события: {error}")
 
 
 def check_links(response: HTMLResponse) -> List[str]:
@@ -67,4 +69,4 @@ def check_links(response: HTMLResponse) -> List[str]:
             return match_info
         return None
     except Exception as error:
-        print(f"Ошибка в получении информации о событии: {error}")
+        logger.error(f"Ошибка в получении информации о событии: {error}")

@@ -1,32 +1,15 @@
-import logging
 import os
-import sys
 import time
 
 from dotenv import load_dotenv
 from telebot import TeleBot
 
-from giga import generate_horoscope
+from log import logger
 from parse_4score import get_trends
 from parse_jleague import check_links, get_links, get_page_as_response
 
 load_dotenv()
 
-
-logging.basicConfig(
-    handlers=[logging.FileHandler(filename="main.log", encoding="utf-8")],
-    format="%(asctime)s  %(name)s, %(levelname)s, %(message)s",
-    datefmt="%F %A %T",
-    level=logging.DEBUG,
-)
-logger = logging.getLogger(__name__)
-handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(
-    logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-)
-logger.addHandler(handler)
-
-GIGA_TOKEN = os.getenv("GIGA_TOKEN")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TELEGRAM_CHAT_ID_DIMA = os.getenv("TELEGRAM_CHAT_ID_DIMA")
@@ -34,18 +17,28 @@ USER_IDS = {
     "Andre": TELEGRAM_CHAT_ID,
     # "Dima": TELEGRAM_CHAT_ID_DIMA,
 }
-URL_BET = "https://www.jleague.co/"
-URL_TREND = "https://4score.ru/referee/18910/"
+URL_BET = "https://www.jleague.co"
+URL_TREND = "https://4score.ru/referee/18910"
 RETRY_PERIOD = 600
 
 
 def check_tokens() -> bool:
-    """Проверка предзаполненных переменных окружения."""
-    return all((GIGA_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID, TELEGRAM_CHAT_ID_DIMA))
+    """Checks the presence of all tokens
+
+    Returns:
+        bool
+    """
+    return all((TELEGRAM_TOKEN, TELEGRAM_CHAT_ID, TELEGRAM_CHAT_ID_DIMA))
 
 
-def send_message(bot, message, chat_id):
-    """Отправка сообщения пользователю бота."""
+def send_message(bot: TeleBot, message: str, chat_id: str) -> None:
+    """Sending a message to the user
+
+    Args:
+        bot (TeleBot): bot instance
+        message (str): text message
+        chat_id (str): user id
+    """
     logger.debug("Начало отправки сообщения в Telegram")
     try:
         bot.send_message(chat_id, message)
@@ -55,14 +48,15 @@ def send_message(bot, message, chat_id):
 
 
 def main():
-    """Основная логика работы бота."""
+    """The main logic of the work of the bot"""
     logger.info("Бот приступает к патрулированию")
     if not check_tokens():
         logger.critical("Отсутствует хотя бы одна переменная окружения")
         raise ValueError("Отсутствует хотя бы одна переменная окружения!")
     logger.debug("Переменные прошли проверку")
     bot = TeleBot(TELEGRAM_TOKEN)
-    message = "Бот приступает к патрулированию.\n\n\t\U0000264D " + generate_horoscope(GIGA_TOKEN)
+    print(type(bot))
+    message = "Бот \U0001F916 начинает поиск игры. \U0001F50D"
     for user in USER_IDS:
         send_message(bot, message, USER_IDS[user])
     logger.debug("Пробное сообщение отправлено")
