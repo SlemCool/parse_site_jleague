@@ -47,6 +47,30 @@ def send_message(bot: TeleBot, message: str, chat_id: str) -> None:
         logger.error(f"Упс сообщение не получилось отправить: {error}")
 
 
+def collect_event_message(event: list) -> str:
+    """Collects the final event message
+
+    Args:
+        event (list): event data
+
+    Returns:
+        str: message string
+    """
+    match_info = (
+        f"\U000026BD Команды: {event[0]}"
+        f"\n\U0001F525 Рефери: {event[1]}"
+        f"Ссылка: {event[2]}"
+    )
+    logger.debug(f"Обнаружено событие: {match_info}")
+    trend_info = get_trends(get_page_as_response(URL_TREND))
+    return (
+        f"\U000026A0 Внимание \U000026A0"
+        f"\n\n{match_info}\n\n"
+        f"\U0001F4C8 Тренды для рефери:"
+        f"\n{trend_info}"
+    )
+
+
 def main():
     """The main logic of the work of the bot"""
     logger.info("Бот приступает к патрулированию")
@@ -55,7 +79,6 @@ def main():
         raise ValueError("Отсутствует хотя бы одна переменная окружения!")
     logger.debug("Переменные прошли проверку")
     bot = TeleBot(TELEGRAM_TOKEN)
-    print(type(bot))
     message = "Бот \U0001F916 начинает поиск игры. \U0001F50D"
     for user in USER_IDS:
         send_message(bot, message, USER_IDS[user])
@@ -65,24 +88,20 @@ def main():
             logger.debug("Проверяем главный сайт")
             response = get_page_as_response(URL_BET)
             parse_events = get_links(response)
-            logger.debug("Проверка прошла")
+            logger.debug(f"Вот что нашли: {parse_events}")
             if parse_events:
-                logger.debug(f"Обнаружены линки на события: {parse_events}")
                 for link in parse_events:
                     logger.debug(f"Проверяем линк: {link}")
                     event_check = check_links(get_page_as_response(URL_BET + link))
                     if event_check:
-                        match_info = f"\U000026BD Команды: {event_check[0]}\n\U0001F525 Рефери: {event_check[1]}"
-                        logger.debug(f"Обнаружено нужное событие: {match_info}")
-                        trend_info = get_trends(get_page_as_response(URL_TREND))
-                        message = f"\U000026A0 Внимание \U000026A0\n\n{match_info}\n\n\U0001F4C8 Тренды для рефери:\n{trend_info}"
+                        message = collect_event_message(event_check)
                         for user in USER_IDS:
                             send_message(bot, message, USER_IDS[user])
             else:
                 logger.debug("Встречи команд ещё не опубликованы.")
         except Exception as error:
             message = f"Сбой в работе программы: {error}"
-            send_message(bot, message)
+            send_message(bot, message, USER_IDS["Andre"])
             logger.error(message)
         finally:
             logger.debug(f"Засыпаю на - {RETRY_PERIOD} сек")
