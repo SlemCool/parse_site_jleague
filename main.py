@@ -1,14 +1,16 @@
 import os
 import time
+from datetime import datetime
 
 from dotenv import load_dotenv
 from telebot import TeleBot
 
 from log import logger
 from parse_4score import get_trends
-from parse_jleague import check_links, get_links, get_page_as_response
+from parse_jleague import check_links, get_links_from_fixtures, get_page_as_response
 
 load_dotenv()
+current_year = datetime.now().year
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
@@ -18,6 +20,7 @@ USER_IDS = {
     # "Dima": TELEGRAM_CHAT_ID_DIMA,
 }
 URL_BET = "https://www.jleague.co"
+URL_BET_FIXTURE = f"https://www.jleague.co/fixtures/j1/{current_year}/latest/"
 URL_TREND = "https://4score.ru/referee/18910"
 RETRY_PERIOD = 600
 
@@ -85,9 +88,9 @@ def main():
     logger.debug("Пробное сообщение отправлено")
     while True:
         try:
-            logger.debug("Проверяем главный сайт")
-            response = get_page_as_response(URL_BET)
-            parse_events = get_links(response)
+            logger.debug(f"Проверяем страницу с играми {URL_BET_FIXTURE}")
+            response = get_page_as_response(URL_BET_FIXTURE)
+            parse_events = get_links_from_fixtures(response)
             logger.debug(f"Вот что нашли: {parse_events}")
             if parse_events:
                 for link in parse_events:

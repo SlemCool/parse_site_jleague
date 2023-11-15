@@ -4,7 +4,10 @@ from requests_html import HTMLResponse, HTMLSession
 
 from log import logger
 
-event_status = {'https://www.jleague.co/match/j1/2023082607/': 'Completed', 'https://www.jleague.co/match/j1/2023090315/': 'Completed'}
+event_status = {
+    "https://www.jleague.co/match/j1/2023082607/": "Completed",
+    "https://www.jleague.co/match/j1/2023090315/": "Completed",
+}
 
 
 def get_page_as_response(url: str) -> HTMLResponse:
@@ -26,7 +29,7 @@ def get_page_as_response(url: str) -> HTMLResponse:
         logger.error(f"Ошибка: {error} в получении или рендеринге для: {url}")
 
 
-def get_links(response: HTMLResponse) -> List[str]:
+def get_links_from_main(response: HTMLResponse) -> List[str]:
     """Try to get links on main page
 
     Args:
@@ -39,6 +42,26 @@ def get_links(response: HTMLResponse) -> List[str]:
         first_block = response.html.find("div.games-list", first=True)
         if first_block:
             events_links = list(first_block.links)
+            if events_links:
+                return events_links
+        return None
+    except Exception as error:
+        logger.error(f"Ошибка в получении ссылок на события: {error}")
+
+
+def get_links_from_fixtures(response: HTMLResponse) -> List[str]:
+    """Try to get links on main page
+
+    Args:
+        response (HTMLResponse): Response object
+
+    Returns:
+        List[str]: List with links
+    """
+    try:
+        events = response.html.find("a.match-link")
+        if events:
+            events_links = ["".join(event.links) for event in events]
             if events_links:
                 return events_links
         return None
@@ -83,31 +106,11 @@ def is_completed_event(url: str) -> bool:
     return bool(event_status.get(url))
 
 
-def get_links_from_fixtures(response: HTMLResponse) -> List[str]:
-    """Try to get links on main page
-
-    Args:
-        response (HTMLResponse): Response object
-
-    Returns:
-        List[str]: List with links
-    """
-    try:
-        events = response.html.find("a.match-link")
-        if events:
-            events_links = ["".join(event.links) for event in events]
-            if events_links:
-                return events_links
-        return None
-    except Exception as error:
-        logger.error(f"Ошибка в получении ссылок на события: {error}")
-
-
-URL_BET = "https://www.jleague.co"
-for i in range(25, 33):
-    url = f"https://www.jleague.co/fixtures/stage/j1/2023/{i}/"
-    links = get_links_from_fixtures(get_page_as_response(url))
-    for link in links:
-        event_check = check_links(get_page_as_response(URL_BET + link))
-        if event_check:
-            print(event_check)
+# URL_BET = "https://www.jleague.co"
+# for i in range(25, 33):
+#     url = f"https://www.jleague.co/fixtures/stage/j1/2023/{i}/"
+#     links = get_links_from_fixtures(get_page_as_response(url))
+#     for link in links:
+#         event_check = check_links(get_page_as_response(URL_BET + link))
+#         if event_check:
+#             print(event_check)
