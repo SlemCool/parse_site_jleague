@@ -2,12 +2,11 @@ from typing import List
 
 from requests_html import HTMLResponse, HTMLSession
 
+from data import create_data_file, read_file, write_file
 from log import logger
 
-event_status = {
-    "https://www.jleague.co/match/j1/2023082607/": "Completed",
-    "https://www.jleague.co/match/j1/2023090315/": "Completed",
-}
+create_data_file()
+event_status = read_file()
 
 
 def get_page_as_response(url: str) -> HTMLResponse:
@@ -86,15 +85,23 @@ def check_links(
         return None
     try:
         match_info = []
-        teams = response.html.find("div.summary-teams", first=True)
-        team_1, team_2, _ = teams.text.split("\n")
-        match_info.append(team_1 + " \U0001F19A " + team_2)
+        # teams = response.html.find("div.summary-teams", first=True)
+        # team_1, team_2, _ = teams.text.split("\n")
+        # match_info.append(team_1 + " \U0001F19A " + team_2)
         extra_block = response.html.find("div.match-extra-info-item")
         for info in extra_block:
             label, value = info.text.split("\n")
             if label == "Referee" and value.lower() == referee.lower():
-                event_status[url] = "Completed"
+                write_file(url)
+                event_status.append(url)
+                # Get teams name
+                teams: list = response.html.find("div.match-details-header__info > h1")
+                match_info.append(
+                    teams[0].text.strip().replace(",", "").replace("VS", "\U0001F19A")
+                )
+                # Referee name
                 match_info.append(value)
+                # Match url
                 match_info.append(url)
                 return match_info
         return None
@@ -103,7 +110,9 @@ def check_links(
 
 
 def is_completed_event(url: str) -> bool:
-    return bool(event_status.get(url))
+    if event_status:
+        return url in event_status
+    return False
 
 
 # URL_BET = "https://www.jleague.co"

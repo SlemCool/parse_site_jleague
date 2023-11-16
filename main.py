@@ -5,12 +5,14 @@ from datetime import datetime
 from dotenv import load_dotenv
 from telebot import TeleBot
 
+from data import create_data_file
 from log import logger
 from parse_4score import get_trends
 from parse_jleague import check_links, get_links_from_fixtures, get_page_as_response
 
 load_dotenv()
 current_year = datetime.now().year
+create_data_file()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
@@ -34,7 +36,7 @@ def check_tokens() -> bool:
     return all((TELEGRAM_TOKEN, TELEGRAM_CHAT_ID, TELEGRAM_CHAT_ID_DIMA))
 
 
-def send_message(bot: TeleBot, message: str, chat_id: str) -> None:
+def send_message(bot: TeleBot, message: str) -> None:
     """Sending a message to the user
 
     Args:
@@ -44,7 +46,8 @@ def send_message(bot: TeleBot, message: str, chat_id: str) -> None:
     """
     logger.debug("Начало отправки сообщения в Telegram")
     try:
-        bot.send_message(chat_id, message)
+        for user_id in USER_IDS.values():
+            bot.send_message(user_id, message)
         logger.debug(f"Сообщение отправлено: {message}")
     except Exception as error:
         logger.error(f"Упс сообщение не получилось отправить: {error}")
@@ -83,8 +86,7 @@ def main():
     logger.debug("Переменные прошли проверку")
     bot = TeleBot(TELEGRAM_TOKEN)
     message = "Бот \U0001F916 начинает поиск игры. \U0001F50D"
-    for user in USER_IDS:
-        send_message(bot, message, USER_IDS[user])
+    send_message(bot, message)
     logger.debug("Пробное сообщение отправлено")
     while True:
         try:
@@ -98,13 +100,12 @@ def main():
                     event_check = check_links(get_page_as_response(URL_BET + link))
                     if event_check:
                         message = collect_event_message(event_check)
-                        for user in USER_IDS:
-                            send_message(bot, message, USER_IDS[user])
+                        send_message(bot, message)
             else:
                 logger.debug("Встречи команд ещё не опубликованы.")
         except Exception as error:
             message = f"Сбой в работе программы: {error}"
-            send_message(bot, message, USER_IDS["Andre"])
+            bot.send_message(USER_IDS["Andre"], message)
             logger.error(message)
         finally:
             logger.debug(f"Засыпаю на - {RETRY_PERIOD} сек")
