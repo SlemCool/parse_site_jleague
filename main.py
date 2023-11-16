@@ -19,7 +19,7 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TELEGRAM_CHAT_ID_DIMA = os.getenv("TELEGRAM_CHAT_ID_DIMA")
 USER_IDS = {
     "Andre": TELEGRAM_CHAT_ID,
-    # "Dima": TELEGRAM_CHAT_ID_DIMA,
+    "Dima": TELEGRAM_CHAT_ID_DIMA,
 }
 URL_BET = "https://www.jleague.co"
 URL_BET_FIXTURE = f"https://www.jleague.co/fixtures/j1/{current_year}/latest/"
@@ -48,9 +48,11 @@ def send_message(bot: TeleBot, message: str) -> None:
     try:
         for user_id in USER_IDS.values():
             bot.send_message(user_id, message)
-        logger.debug(f"Сообщение отправлено: {message}")
+            logger.debug(f"Сообщение отправлено: '{message}' пользователю: '{user_id}'")
     except Exception as error:
-        logger.error(f"Упс сообщение не получилось отправить: {error}")
+        logger.error(
+            f"Пользователю: '{user_id}' не получилось отправить сообщение: {error}"
+        )
 
 
 def collect_event_message(event: list) -> str:

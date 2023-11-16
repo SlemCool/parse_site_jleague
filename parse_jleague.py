@@ -2,10 +2,9 @@ from typing import List
 
 from requests_html import HTMLResponse, HTMLSession
 
-from data import create_data_file, read_file, write_file
+from data import read_file, write_file
 from log import logger
 
-create_data_file()
 event_status = read_file()
 
 
@@ -85,9 +84,6 @@ def check_links(
         return None
     try:
         match_info = []
-        # teams = response.html.find("div.summary-teams", first=True)
-        # team_1, team_2, _ = teams.text.split("\n")
-        # match_info.append(team_1 + " \U0001F19A " + team_2)
         extra_block = response.html.find("div.match-extra-info-item")
         for info in extra_block:
             label, value = info.text.split("\n")
@@ -97,7 +93,7 @@ def check_links(
                 # Get teams name
                 teams: list = response.html.find("div.match-details-header__info > h1")
                 match_info.append(
-                    teams[0].text.strip().replace(",", "").replace("VS", "\U0001F19A")
+                    teams[0].text.strip().replace(",", '').replace("VS", "\U0001F19A")
                 )
                 # Referee name
                 match_info.append(value)
@@ -113,13 +109,3 @@ def is_completed_event(url: str) -> bool:
     if event_status:
         return url in event_status
     return False
-
-
-# URL_BET = "https://www.jleague.co"
-# for i in range(25, 33):
-#     url = f"https://www.jleague.co/fixtures/stage/j1/2023/{i}/"
-#     links = get_links_from_fixtures(get_page_as_response(url))
-#     for link in links:
-#         event_check = check_links(get_page_as_response(URL_BET + link))
-#         if event_check:
-#             print(event_check)
