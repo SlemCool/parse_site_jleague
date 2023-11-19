@@ -12,6 +12,7 @@ pyppeteer = "^1.0.2"
 python-dotenv = "^1.0.0"
 pytelegrambotapi = "^4.14.0"
 nuitka = "^1.8.6"
+imageio = "^2.32.0"
 
 
 [build-system]

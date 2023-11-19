@@ -2,9 +2,10 @@ from typing import List
 
 from requests_html import HTMLResponse, HTMLSession
 
-from data import read_file, write_file
+from data import create_data_file, read_file, write_file
 from log import logger
 
+create_data_file()
 event_status = read_file()
 
 
