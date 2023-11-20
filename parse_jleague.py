@@ -2,9 +2,10 @@ from typing import List
 
 from requests_html import HTMLResponse, HTMLSession
 
+import app_logger
 from data import create_data_file, read_file, write_file
-from log import logger
 
+logger = app_logger.get_logger(__name__)
 create_data_file()
 event_status = read_file()
 
@@ -62,6 +63,7 @@ def get_links_from_fixtures(response: HTMLResponse) -> List[str]:
         if events:
             events_links = ["".join(event.links) for event in events]
             if events_links:
+                logger.warning(f"Ссылки на игры: {events_links}")
                 return events_links
         return None
     except Exception as error:
@@ -85,22 +87,22 @@ def check_links(
         return None
     try:
         match_info = []
-        extra_block = response.html.find("div.match-extra-info-item")
-        for info in extra_block:
-            label, value = info.text.split("\n")
-            if label == "Referee" and value.lower() == referee.lower():
-                write_file(url)
-                event_status.append(url)
-                # Get teams name
-                teams: list = response.html.find("div.match-details-header__info > h1")
-                match_info.append(
-                    teams[0].text.strip().replace(",", '').replace("VS", "\U0001F19A")
-                )
-                # Referee name
-                match_info.append(value)
-                # Match url
-                match_info.append(url)
-                return match_info
+        rs_match_info = response.html.find("div.match-extra-info-item")
+        label, value = rs_match_info[3].text.split('\n')
+        logger.warning(f"Проверяем линк: {url} Судья: {label} - {value}")
+        if value.lower() == referee.lower():
+            write_file(url)
+            event_status.append(url)
+            # Get teams name
+            teams: list = response.html.find("div.match-details-header__info > h1")
+            match_info.append(
+                teams[0].text.strip().replace(",", '').replace("VS", "\U0001F19A")
+            )
+            # Referee name
+            match_info.append(value)
+            # Match url
+            match_info.append(url)
+            return match_info
         return None
     except Exception as error:
         logger.error(f"Ошибка: {error} в получении информации о событии: {url}")

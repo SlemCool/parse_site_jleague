@@ -1,5 +1,6 @@
-from log import logger
+import app_logger
 
+logger = app_logger.get_logger(__name__)
 DATA_FILE_NAME = "event_data.txt"
 
 
@@ -12,8 +13,11 @@ def write_file(data: str) -> None:
     try:
         with open(DATA_FILE_NAME, "a", encoding="utf-8") as file:
             file.write(data + "\n")
+            logger.info(
+                f"Записываем в файл: {DATA_FILE_NAME} отработанную ссылку: {data}"
+            )
     except Exception as error:
-        logger.debug(f"Ошибка записи: {error} Файл: {DATA_FILE_NAME} Данные: {data}")
+        logger.error(f"Ошибка записи: {error} Файл: {DATA_FILE_NAME} Данные: {data}")
 
 
 def read_file() -> list:
@@ -24,9 +28,10 @@ def read_file() -> list:
     """
     try:
         with open(DATA_FILE_NAME, "r", encoding="utf-8") as file:
+            logger.info(f"Считываем файл: {DATA_FILE_NAME} для передачи в переменную")
             return list(map(str.strip, file.readlines()))
     except Exception as error:
-        logger.debug(f"Ошибка чтения: {error} Файл: {DATA_FILE_NAME}")
+        logger.error(f"Ошибка чтения: {error} Файл: {DATA_FILE_NAME}")
 
 
 def create_data_file() -> None:
@@ -34,8 +39,9 @@ def create_data_file() -> None:
     If the file already exists, it will not be overwritten."""
     try:
         with open(DATA_FILE_NAME, "x", encoding="utf-8") as _:
+            logger.info(f"Создаем файл для отработанных ссылок: {DATA_FILE_NAME}")
             pass
     except FileExistsError:
-        logger.debug("Файл уже создан. Пропускаем создание")
+        logger.info(f"Файл: {DATA_FILE_NAME} уже создан. Пропускаем создание")
     except Exception as error:
-        logger.debug(f"Создание файла: {error}")
+        logger.error(f"Ошибка создания файла: {error}")
