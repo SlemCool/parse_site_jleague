@@ -2,7 +2,11 @@ import logging
 import sys
 
 logging.basicConfig(
-    handlers=[logging.FileHandler(filename="main.log", encoding="utf-8")],
+    handlers=[
+        logging.FileHandler(
+            filename="main.log", encoding="utf-8", maxBytes=10 * 1024 * 1024
+        )
+    ],
     format="%(asctime)s  %(name)s, %(levelname)s, %(message)s",
     datefmt="%F %A %T",
     level=logging.DEBUG,
