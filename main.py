@@ -5,14 +5,13 @@ from datetime import datetime
 from dotenv import load_dotenv
 from telebot import TeleBot
 
-from data import create_data_file
 from log import logger
 from parse_4score import get_trends
 from parse_jleague import check_links, get_links_from_fixtures, get_page_as_response
 
 load_dotenv()
 current_year = datetime.now().year
-create_data_file()
+
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
@@ -72,9 +71,9 @@ def collect_event_message(event: list) -> str:
     logger.debug(f"Обнаружено событие: {match_info}")
     trend_info = get_trends(get_page_as_response(URL_TREND))
     return (
-        f"\U000026A0 Внимание \U000026A0"
+        "\U000026A0 Внимание \U000026A0"
         f"\n\n{match_info}\n\n"
-        f"\U0001F4C8 Тренды для рефери:"
+        "\U0001F4C8 Тренды для рефери:"
         f"\n{trend_info}"
     )
 
@@ -89,7 +88,6 @@ def main():
     bot = TeleBot(TELEGRAM_TOKEN)
     message = "Бот \U0001F916 начинает поиск игры. \U0001F50D"
     send_message(bot, message)
-    logger.debug("Пробное сообщение отправлено")
     while True:
         try:
             logger.debug(f"Проверяем страницу с играми {URL_BET_FIXTURE}")
