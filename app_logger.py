@@ -14,7 +14,7 @@ def get_file_handler():
         maxBytes=10 * 1024 * 1024,
         backupCount=5,
     )
-    file_handler.setLevel(logging.WARNING)
+    file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(logging.Formatter(_log_format))
     return file_handler
 
