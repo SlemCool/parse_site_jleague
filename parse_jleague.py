@@ -1,3 +1,4 @@
+import time
 from typing import List
 
 from requests_html import HTMLResponse, HTMLSession
@@ -21,9 +22,14 @@ def get_page_as_response(url: str) -> HTMLResponse:
     """
     try:
         session = HTMLSession()
-        response = session.get(url)
+        headers = {
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+        }
+        response = session.get(url, headers=headers)
         response.html.render(sleep=1, scrolldown=2)
+        response.close()
         session.close()
+        time.sleep(2)
         return response
     except Exception as error:
         logger.error(f"Ошибка: {error} в получении или рендеринге для: {url}")
@@ -88,7 +94,7 @@ def check_links(
     try:
         match_info = []
         rs_match_info = response.html.find("div.match-extra-info-item")
-        label, value = rs_match_info[3].text.split('\n')
+        label, value = rs_match_info[3].text.split("\n")
         logger.warning(f"Проверяем линк: {url} Судья: {label} - {value}")
         if value.lower() == referee.lower():
             write_file(url)
@@ -96,7 +102,7 @@ def check_links(
             # Get teams name
             teams: list = response.html.find("div.match-details-header__info > h1")
             match_info.append(
-                teams[0].text.strip().replace(",", '').replace("VS", "\U0001F19A")
+                teams[0].text.strip().replace(",", "").replace("VS", "\U0001F19A")
             )
             # Referee name
             match_info.append(value)
