@@ -24,7 +24,7 @@ USER_IDS = {
 URL_BET = "https://www.jleague.co"
 URL_BET_FIXTURE = f"https://www.jleague.co/fixtures/j1/{current_year}/latest/"
 URL_TREND = "https://4score.ru/referee/18910"
-RETRY_PERIOD = 200
+RETRY_PERIOD = 300
 
 
 def check_tokens() -> bool:

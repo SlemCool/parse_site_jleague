@@ -23,7 +23,8 @@ def get_page_as_response(url: str) -> HTMLResponse:
     try:
         session = HTMLSession()
         headers = {
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+            'Referer': 'https://www.jleague.co/fixtures/j1/2023/latest/'
         }
         response = session.get(url, headers=headers)
         response.html.render(sleep=1, scrolldown=2)
