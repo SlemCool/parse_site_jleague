@@ -1,17 +1,20 @@
 import logging
+import os
 from logging.handlers import RotatingFileHandler
 
 _log_format = (
     "%(asctime)s - [%(levelname)s] - %(name)s - "
     "(%(filename)s).%(funcName)s(%(lineno)d) - %(message)s"
 )
+if not os.path.isdir("logs"):
+    os.mkdir("logs")
 
 
 def get_file_handler():
     file_handler = RotatingFileHandler(
-        "Jleague.log",
+        "logs/Jleague.log",
         encoding="utf-8",
-        maxBytes=10 * 1024 * 1024,
+        maxBytes=5 * 1024 * 1024,
         backupCount=5,
     )
     file_handler.setLevel(logging.INFO)

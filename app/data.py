@@ -1,7 +1,11 @@
+import os
+
 import app_logger
 
 logger = app_logger.get_logger(__name__)
-DATA_FILE_NAME = "event_data.txt"
+if not os.path.isdir("data"):
+    os.mkdir("data")
+DATA_FILE_NAME = "data/event_data.txt"
 
 
 def write_file(data: str) -> None:
