@@ -3,6 +3,7 @@ import time
 from typing import List
 
 import app_logger
+import app_logger
 from requests_html import HTMLResponse, HTMLSession
 from selenium.webdriver.common.by import By
 from seleniumbase import SB
@@ -94,16 +95,18 @@ def get_page_as_response(url: str) -> HTMLResponse:
         HTMLResponse: Response object with (JS). Returns rendered response
     """
     try:
+        # proxy = {'http' : 'http://50.168.210.226:80', 'https': 'https://50.168.210.226:80'}
+        # session = HTMLSession(browser_args=["--proxy-server=50.168.210.226:80"])
         session = HTMLSession()
         headers = {
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
             "Referer": "https://www.jleague.co/fixtures/j1/2023/latest/",
         }
-        response = session.get(url, headers=headers)
-        response.html.render(sleep=1, scrolldown=2)
-        response.close()
+        response = session.get(url, headers=headers, timeout=5)
+        response.html.render(sleep=5, scrolldown=2)
+        # response.close()
         session.close()
-        time.sleep(2)
+        # time.sleep(2)
         return response
     except Exception as error:
         logger.error(f"Ошибка: {error} в получении или рендеринге для: {url}")
