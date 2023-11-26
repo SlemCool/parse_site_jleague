@@ -13,7 +13,7 @@ python-dotenv = "^1.0.0"
 pytelegrambotapi = "^4.14.0"
 nuitka = "^1.8.6"
 imageio = "^2.32.0"
-mmh3 = "^4.0.1"
+seleniumbase = "^4.21.4"
 
 
 [build-system]

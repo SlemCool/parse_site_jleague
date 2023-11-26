@@ -6,3 +6,5 @@ __pycache__
 event_data.txt
 data
 logs
+downloaded_files
+main.dist

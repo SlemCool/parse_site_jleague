@@ -1,17 +1,15 @@
 import os
+import random
 import time
-from datetime import datetime
-
-from dotenv import load_dotenv
-from telebot import TeleBot
 
 import app_logger
+from dotenv import load_dotenv
 from parse_4score import get_trends
-from parse_jleague import check_links, get_links_from_fixtures, get_page_as_response
+from parse_jleague import get_page_as_response, parse_and_check_referee
+from telebot import TeleBot
 
 logger = app_logger.get_logger(__name__)
 load_dotenv()
-current_year = datetime.now().year
 
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -19,12 +17,14 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TELEGRAM_CHAT_ID_DIMA = os.getenv("TELEGRAM_CHAT_ID_DIMA")
 USER_IDS = {
     "Andre": TELEGRAM_CHAT_ID,
-    "Dima": TELEGRAM_CHAT_ID_DIMA,
+    # "Dima": TELEGRAM_CHAT_ID_DIMA,
 }
-URL_BET = "https://www.jleague.co"
-URL_BET_FIXTURE = f"https://www.jleague.co/fixtures/j1/{current_year}/latest/"
+URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/search/j1/latest/"
 URL_TREND = "https://4score.ru/referee/18910"
-RETRY_PERIOD = 300
+
+
+def rnd_sleep_interval() -> int:
+    return random.randint(300, 700)
 
 
 def check_tokens() -> bool:
@@ -48,7 +48,7 @@ def send_message(bot: TeleBot, message: str) -> None:
     try:
         for user_id in USER_IDS.values():
             bot.send_message(user_id, message)
-            logger.info(f"Сообщение отправлено: '{message}' пользователю: '{user_id}'")
+            logger.info(f"Сообщение отправлено пользователю: '{user_id}'\n'{message}'")
     except Exception as error:
         logger.error(
             f"Пользователю: '{user_id}' не получилось отправить сообщение: {error}"
@@ -65,11 +65,11 @@ def collect_event_message(event: list) -> str:
         str: message string
     """
     match_info = (
-        f"\U000026BD Команды: {event[0]}"
-        f"\n\U0001F525 Рефери: {event[1]}"
-        f"Ссылка: {event[2]}"
+        f"\n\U0001F525 Рефери: {event[0]}"
+        f"\nСсылка 🇯🇵: {event[1]}"
+        f"\nСсылка 🇺🇸: {event[2]}"
     )
-    logger.warning(f"Обнаружено событие: {match_info}")
+    logger.warning("Обнаружен нужный матч!!!")
     trend_info = get_trends(get_page_as_response(URL_TREND))
     return (
         "\U000026A0 Внимание \U000026A0"
@@ -91,25 +91,21 @@ def main():
     bot.send_message(USER_IDS["Andre"], message)
     while True:
         try:
-            response = get_page_as_response(URL_BET_FIXTURE)
-            logger.warning(f"Проверяем страницу с играми {URL_BET_FIXTURE}")
-            parse_events = get_links_from_fixtures(response)
-            if parse_events:
-                for link in parse_events:
-                    event_check = check_links(get_page_as_response(URL_BET + link))
-                    if event_check:
-                        message = collect_event_message(event_check)
-                        send_message(bot, message)
-            else:
-                logger.info("Встречи команд ещё не опубликованы.")
+            event_check = parse_and_check_referee(URL_JLEAGUE_LATEST)
+            if event_check:
+                message = collect_event_message(event_check)
+                send_message(bot, message)
         except Exception as error:
             message = f"Сбой в работе программы: {error}"
             bot.send_message(USER_IDS["Andre"], message)
             logger.error(message)
         finally:
-            logger.info(f"Засыпаю на - {RETRY_PERIOD} сек")
-            time.sleep(RETRY_PERIOD)
+            retry_interval = rnd_sleep_interval()
+            logger.info(f"Засыпаю на - {retry_interval} сек")
+            time.sleep(retry_interval)
 
 
 if __name__ == "__main__":
     main()
+
+# python -m nuitka --follow-imports --standalone --windows-icon-from-ico=assets\logo.png --remove-output app\main.py 
