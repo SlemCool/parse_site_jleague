@@ -17,9 +17,10 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TELEGRAM_CHAT_ID_DIMA = os.getenv("TELEGRAM_CHAT_ID_DIMA")
 USER_IDS = {
     "Andre": TELEGRAM_CHAT_ID,
-    # "Dima": TELEGRAM_CHAT_ID_DIMA,
+    "Dima": TELEGRAM_CHAT_ID_DIMA,
 }
 URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/search/j1/latest/"
+# URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/section/j1/33/" # Для отладки
 URL_TREND = "https://4score.ru/referee/18910"
 
 
@@ -47,8 +48,8 @@ def send_message(bot: TeleBot, message: str) -> None:
     logger.info("Начало отправки сообщения в Telegram")
     try:
         for user_id in USER_IDS.values():
-            bot.send_message(user_id, message)
-            logger.info(f"Сообщение отправлено пользователю: '{user_id}'\n'{message}'")
+            bot.send_message(user_id, message, disable_web_page_preview=True)
+            logger.info(f"Сообщение отправлено пользователю: '{user_id}'")
     except Exception as error:
         logger.error(
             f"Пользователю: '{user_id}' не получилось отправить сообщение: {error}"

@@ -40,5 +40,5 @@ poetry shell
 ### Запустить проект:
 
 ```
-python main.py
+python app/main.py
 ```
