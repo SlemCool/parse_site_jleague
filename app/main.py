@@ -17,15 +17,15 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TELEGRAM_CHAT_ID_DIMA = os.getenv("TELEGRAM_CHAT_ID_DIMA")
 USER_IDS = {
     "Andre": TELEGRAM_CHAT_ID,
-    "Dima": TELEGRAM_CHAT_ID_DIMA,
+    # "Dima": TELEGRAM_CHAT_ID_DIMA,
 }
-URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/search/j1/latest/"
-# URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/section/j1/33/" # Для отладки
+# URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/search/j1/latest/"
+URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/section/j1/33/" # Для отладки
 URL_TREND = "https://4score.ru/referee/18910"
 
 
 def rnd_sleep_interval() -> int:
-    return random.randint(300, 700)
+    return random.randint(300, 600)
 
 
 def check_tokens() -> bool:
@@ -110,3 +110,5 @@ if __name__ == "__main__":
     main()
 
 # python -m nuitka --follow-imports --standalone --windows-icon-from-ico=assets\logo.png --remove-output app\main.py 
+
+# python -m nuitka --follow-imports --include-package=selenium  --standalone --include-data-files=.env=.env  --windows-icon-from-ico=assets\logo.png  app\main.py

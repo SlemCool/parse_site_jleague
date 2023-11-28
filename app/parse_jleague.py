@@ -44,7 +44,7 @@ def parse_and_check_referee(url: str) -> List[str]:
     try:
         with SB(
             uc=True,
-            headed=True,
+            headless=True,
             page_load_strategy="eager",
             block_images=True,
         ) as driver:
