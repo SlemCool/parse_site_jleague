@@ -14,10 +14,10 @@ def get_file_handler():
     file_handler = RotatingFileHandler(
         "logs/Jleague.log",
         encoding="utf-8",
-        maxBytes=5 * 1024 * 1024,
+        maxBytes=3 * 1024 * 1024,
         backupCount=5,
     )
-    file_handler.setLevel(logging.INFO)
+    file_handler.setLevel(logging.WARNING)
     file_handler.setFormatter(logging.Formatter(_log_format))
     return file_handler
 
