@@ -5,7 +5,7 @@ import time
 import app_logger
 from dotenv import load_dotenv
 from parse_4score import get_trends
-from parse_jleague import get_page_as_response, parse_and_check_referee
+from parse_jleague import parse_and_check_referee
 from telebot import TeleBot
 
 logger = app_logger.get_logger(__name__)
@@ -20,7 +20,7 @@ USER_IDS = {
     # "Dima": TELEGRAM_CHAT_ID_DIMA,
 }
 # URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/search/j1/latest/"
-URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/section/j1/33/" # Для отладки
+URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/section/j1/33/"  # Для отладки
 URL_TREND = "https://4score.ru/referee/18910"
 
 
@@ -66,18 +66,15 @@ def collect_event_message(event: list) -> str:
         str: message string
     """
     match_info = (
-        f"\n\U0001F525 Рефери: {event[0]}"
+        f"\U0001F525 Рефери: {event[0]}"
         f"\nСсылка 🇯🇵: {event[1]}"
         f"\nСсылка 🇺🇸: {event[2]}"
     )
-    logger.warning("Обнаружен нужный матч!!!")
-    trend_info = get_trends(get_page_as_response(URL_TREND))
-    return (
-        "\U000026A0 Внимание \U000026A0"
-        f"\n\n{match_info}\n\n"
-        "\U0001F4C8 Тренды для рефери:"
-        f"\n{trend_info}"
-    )
+    message = f"\U000026A0 Внимание \U000026A0\n\n{match_info}\n\n"
+    trend_info = get_trends(URL_TREND)
+    if trend_info:
+        message += f"\U0001F4C8 Тренды для рефери:\n{trend_info}"
+    return message
 
 
 def main():
@@ -92,9 +89,10 @@ def main():
     bot.send_message(USER_IDS["Andre"], message)
     while True:
         try:
-            event_check = parse_and_check_referee(URL_JLEAGUE_LATEST)
-            if event_check:
-                message = collect_event_message(event_check)
+            event_data = parse_and_check_referee(URL_JLEAGUE_LATEST)
+            if event_data:
+                logger.warning("Обнаружен нужный матч!!!")
+                message = collect_event_message(event_data)
                 send_message(bot, message)
         except Exception as error:
             message = f"Сбой в работе программы: {error}"
@@ -109,6 +107,6 @@ def main():
 if __name__ == "__main__":
     main()
 
-# python -m nuitka --follow-imports --standalone --windows-icon-from-ico=assets\logo.png --remove-output app\main.py 
+# python -m nuitka --follow-imports --standalone --windows-icon-from-ico=assets\logo.png --remove-output app\main.py
 
 # python -m nuitka --follow-imports --include-package=selenium  --standalone --include-data-files=.env=.env  --windows-icon-from-ico=assets\logo.png  app\main.py

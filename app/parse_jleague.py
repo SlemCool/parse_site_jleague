@@ -3,7 +3,6 @@ import time
 from typing import List, Optional
 
 import app_logger
-from requests_html import HTMLResponse, HTMLSession
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -32,7 +31,7 @@ def random_interval() -> None:
     time.sleep(random.randint(2, 7))
 
 
-def parse_and_check_referee(url: str) -> List[str]:
+def parse_and_check_referee(url: str) -> Optional[List[str]]:
     """Get links and check match
 
     Args:
@@ -48,11 +47,6 @@ def parse_and_check_referee(url: str) -> List[str]:
             page_load_strategy="eager",
             block_images=True,
         ) as driver:
-            logger.info(
-                f"Версия хрома: {driver.get_chrome_version()} "
-                f"версия драйвера: {driver.get_chromedriver_version()}"
-            )
-
             logger.warning(f"Проверяем сайт: {url}")
             driver.get(url)
             games = driver.find_elements(*LOCATOR["match_events"])
@@ -75,7 +69,7 @@ def parse_and_check_referee(url: str) -> List[str]:
                 game_info = check_game(driver, game_url_jp)
                 if game_info:
                     return game_info
-            return None
+        return None
 
     except Exception as error:
         logger.error(f"Ошибка: {error} в получении информации о событии: {url}")
@@ -138,24 +132,3 @@ def check_game(driver: WebDriver, game_url_jp: str) -> Optional[List[str]]:
         return None
     except Exception as error:
         logger.error(f"Ошибка: {error} в получении информации о событии: {game_url_jp}")
-
-
-def get_page_as_response(url: str) -> HTMLResponse:
-    """Try to get a response from a given URL
-
-    Args:
-        url (str): site URL
-
-    Returns:
-        HTMLResponse: Response object with (JS). Returns rendered response
-    """
-    try:
-        session = HTMLSession()
-        response = session.get(url)
-        response.html.render(sleep=2, scrolldown=2)
-        response.close()
-        session.close()
-        time.sleep(2)
-        return response
-    except Exception as error:
-        logger.error(f"Ошибка: {error} в получении или рендеринге для: {url}")
