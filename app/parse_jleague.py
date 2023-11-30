@@ -1,12 +1,15 @@
+import os
 import random
 import time
 from typing import List, Optional
 
 import app_logger
+from dotenv import load_dotenv
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from seleniumbase import SB
+from telebot import TeleBot
 
 from data import create_data_file, read_file, write_file
 
@@ -14,6 +17,16 @@ logger = app_logger.get_logger(__name__)
 create_data_file()
 event_status = read_file()
 
+# TEMP
+load_dotenv()
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+TELEGRAM_CHAT_ID_DIMA = os.getenv("TELEGRAM_CHAT_ID_DIMA")
+USER_IDS = {
+    "Andre": TELEGRAM_CHAT_ID,
+    "Dima": TELEGRAM_CHAT_ID_DIMA,
+}
+# END TEMP
 
 LOCATOR = {
     "match_events": (By.CSS_SELECTOR, "[class='match']"),
@@ -93,6 +106,22 @@ def check_url(game: WebElement) -> Optional[str]:
         return None
     if "preview" not in game_url.split("/"):
         logger.warning("!! Нужное событие в статусе 'live' !!")
+        
+        # TEMP
+        bot = TeleBot(TELEGRAM_TOKEN)
+        message = "\U000026A0 Внимание \U000026A0"
+        bot.send_message(USER_IDS["Andre"], message)
+        bot.send_message(USER_IDS["Dima"], message)
+        random_interval()
+        message = f"\U0001F50D Поменялся статус игры на 'live'\nНужно проверить страницу на наличии судьи\n{game_url}"
+        bot.send_message(USER_IDS["Andre"], message)
+        bot.send_message(USER_IDS["Dima"], message)
+        random_interval()
+        message = "\U000026A0 Внимание \U000026A0"
+        bot.send_message(USER_IDS["Andre"], message)
+        bot.send_message(USER_IDS["Dima"], message)
+        # END TEMP
+        
         return game_url
     logger.warning("Событие в статусе 'preview'")
 

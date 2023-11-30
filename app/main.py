@@ -17,7 +17,7 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TELEGRAM_CHAT_ID_DIMA = os.getenv("TELEGRAM_CHAT_ID_DIMA")
 USER_IDS = {
     "Andre": TELEGRAM_CHAT_ID,
-    # "Dima": TELEGRAM_CHAT_ID_DIMA,
+    "Dima": TELEGRAM_CHAT_ID_DIMA,
 }
 URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/search/j1/latest/"
 # URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/section/j1/33/"  # Для отладки
@@ -109,4 +109,4 @@ if __name__ == "__main__":
 
 # --remove-output
 
-# python -m nuitka --follow-imports --include-package-data=selenium  --standalone --include-data-files=.env=.env  --windows-icon-from-ico=assets\logo.png  -o JL parser app\main.py
+# python -m nuitka --follow-imports --include-package-data=selenium  --standalone --include-data-files=.env=.env  --windows-icon-from-ico=assets\logo.png  -o JLparser app\main.py
