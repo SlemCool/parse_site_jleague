@@ -18,14 +18,14 @@ create_data_file()
 event_status = read_file()
 
 # TEMP
-load_dotenv()
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-TELEGRAM_CHAT_ID_DIMA = os.getenv("TELEGRAM_CHAT_ID_DIMA")
-USER_IDS = {
-    "Andre": TELEGRAM_CHAT_ID,
-    "Dima": TELEGRAM_CHAT_ID_DIMA,
-}
+# load_dotenv()
+# TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+# TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+# TELEGRAM_CHAT_ID_DIMA = os.getenv("TELEGRAM_CHAT_ID_DIMA")
+# USER_IDS = {
+#     "Andre": TELEGRAM_CHAT_ID,
+#     "Dima": TELEGRAM_CHAT_ID_DIMA,
+# }
 # END TEMP
 
 LOCATOR = {
@@ -108,18 +108,18 @@ def check_url(game: WebElement) -> Optional[str]:
         logger.warning("!! Нужное событие в статусе 'live' !!")
         
         # TEMP
-        bot = TeleBot(TELEGRAM_TOKEN)
-        message = "\U000026A0 Внимание \U000026A0"
-        bot.send_message(USER_IDS["Andre"], message)
-        bot.send_message(USER_IDS["Dima"], message)
-        random_interval()
-        message = f"\U0001F50D Поменялся статус игры на 'live'\nНужно проверить страницу на наличии судьи\n{game_url}"
-        bot.send_message(USER_IDS["Andre"], message)
-        bot.send_message(USER_IDS["Dima"], message)
-        random_interval()
-        message = "\U000026A0 Внимание \U000026A0"
-        bot.send_message(USER_IDS["Andre"], message)
-        bot.send_message(USER_IDS["Dima"], message)
+        # bot = TeleBot(TELEGRAM_TOKEN)
+        # message = "\U000026A0 Внимание \U000026A0"
+        # bot.send_message(USER_IDS["Andre"], message)
+        # bot.send_message(USER_IDS["Dima"], message)
+        # random_interval()
+        # message = f"\U0001F50D Поменялся статус игры на 'live'\nНужно проверить страницу на наличии судьи\n{game_url}"
+        # bot.send_message(USER_IDS["Andre"], message)
+        # bot.send_message(USER_IDS["Dima"], message)
+        # random_interval()
+        # message = "\U000026A0 Внимание \U000026A0"
+        # bot.send_message(USER_IDS["Andre"], message)
+        # bot.send_message(USER_IDS["Dima"], message)
         # END TEMP
         
         return game_url

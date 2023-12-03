@@ -107,6 +107,12 @@ def main():
 if __name__ == "__main__":
     main()
 
-# --remove-output
-
-# python -m nuitka --follow-imports --include-package-data=selenium  --standalone --include-data-files=.env=.env  --windows-icon-from-ico=assets\logo.png  -o JLparser app\main.py
+# python -m nuitka \
+# --follow-imports \
+# --include-package-data=selenium  \
+# --standalone \
+# --include-data-files=.env=.env  \
+# --remove-output \
+# --windows-icon-from-ico=assets\logo.png  \
+# -o JLparser \
+# app\main.py
