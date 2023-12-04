@@ -1,6 +1,6 @@
 from typing import Optional
 
-import app_logger
+from config import app_logger
 from selenium.webdriver.common.by import By
 from seleniumbase import SB
 

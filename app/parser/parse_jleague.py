@@ -1,32 +1,18 @@
-import os
 import random
+import re
 import time
 from typing import List, Optional
 
-import app_logger
-from dotenv import load_dotenv
+from config import app_logger
+from db.data import create_data_file, read_file, write_file
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from seleniumbase import SB
-from telebot import TeleBot
-
-from data import create_data_file, read_file, write_file
 
 logger = app_logger.get_logger(__name__)
 create_data_file()
-event_status = read_file()
 
-# TEMP
-# load_dotenv()
-# TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-# TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-# TELEGRAM_CHAT_ID_DIMA = os.getenv("TELEGRAM_CHAT_ID_DIMA")
-# USER_IDS = {
-#     "Andre": TELEGRAM_CHAT_ID,
-#     "Dima": TELEGRAM_CHAT_ID_DIMA,
-# }
-# END TEMP
 
 LOCATOR = {
     "match_events": (By.CSS_SELECTOR, "[class='match']"),
@@ -37,6 +23,7 @@ LOCATOR = {
 ENG_URL = "https://www.jleague.co/match/j1/"
 REF_JP = "福島 孝一郎"
 REF_ENG = "Koichiro FUKUSHIMA"
+REGEX_REF = r"\w+\s\w+"
 
 
 def random_interval() -> None:
@@ -68,17 +55,18 @@ def parse_and_check_referee(url: str) -> Optional[List[str]]:
                 logger.warning("На главной странице не найдено игр")
                 return None
 
-            game_urls = []
+            games_urls = []
+            checked_games_url = read_file()
             for game in games:
-                game_url = check_url(game)
+                game_url = check_url(game, checked_games_url)
                 if game_url:
-                    game_urls.append(game_url)
+                    games_urls.append(game_url)
 
-            if not game_urls:
+            if not games_urls:
                 logger.warning("Нет ссылок для проверки")
                 return None
 
-            for game_url_jp in game_urls:
+            for game_url_jp in games_urls:
                 game_info = check_game(driver, game_url_jp)
                 if game_info:
                     return game_info
@@ -88,7 +76,7 @@ def parse_and_check_referee(url: str) -> Optional[List[str]]:
         logger.error(f"Ошибка: {error} в получении информации о событии: {url}")
 
 
-def check_url(game: WebElement) -> Optional[str]:
+def check_url(game: WebElement, checked_games_url: list) -> Optional[str]:
     """
     Checks if the game URL is valid and if the event is in the 'live' status.
 
@@ -101,27 +89,11 @@ def check_url(game: WebElement) -> Optional[str]:
     """
     game_url = game.find_element(*LOCATOR["match_url"]).get_attribute("href")
     logger.warning(f"Проверяем ссылку на валидность: {game_url}")
-    if game_url in event_status:
+    if game_url in checked_games_url:
         logger.warning("Событие отработано.")
         return None
     if "preview" not in game_url.split("/"):
         logger.warning("!! Нужное событие в статусе 'live' !!")
-        
-        # TEMP
-        # bot = TeleBot(TELEGRAM_TOKEN)
-        # message = "\U000026A0 Внимание \U000026A0"
-        # bot.send_message(USER_IDS["Andre"], message)
-        # bot.send_message(USER_IDS["Dima"], message)
-        # random_interval()
-        # message = f"\U0001F50D Поменялся статус игры на 'live'\nНужно проверить страницу на наличии судьи\n{game_url}"
-        # bot.send_message(USER_IDS["Andre"], message)
-        # bot.send_message(USER_IDS["Dima"], message)
-        # random_interval()
-        # message = "\U000026A0 Внимание \U000026A0"
-        # bot.send_message(USER_IDS["Andre"], message)
-        # bot.send_message(USER_IDS["Dima"], message)
-        # END TEMP
-        
         return game_url
     logger.warning("Событие в статусе 'preview'")
 
@@ -152,12 +124,13 @@ def check_game(driver: WebDriver, game_url_jp: str) -> Optional[List[str]]:
             logger.warning(f"Судья в матче: {referee}")
             if REF_JP == referee:
                 write_file(game_url_jp)
-                event_status.append(game_url_jp)
                 data_match_info.append(REF_ENG)
                 data_match_info.append(game_url_jp)
                 raw_url_jp = game_url_jp.split("/")
                 data_match_info.append(ENG_URL + raw_url_jp[5] + raw_url_jp[6])
                 return data_match_info
+            if re.match(REGEX_REF, referee):
+                write_file(game_url_jp)
         return None
     except Exception as error:
         logger.error(f"Ошибка: {error} в получении информации о событии: {game_url_jp}")

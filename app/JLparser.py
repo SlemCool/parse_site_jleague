@@ -2,10 +2,10 @@ import os
 import random
 import time
 
-import app_logger
+from config import app_logger
 from dotenv import load_dotenv
-from parse_4score import get_trends
-from parse_jleague import parse_and_check_referee
+from parser.parse_4score import get_trends
+from parser.parse_jleague import parse_and_check_referee
 from telebot import TeleBot
 
 logger = app_logger.get_logger(__name__)
@@ -17,10 +17,10 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TELEGRAM_CHAT_ID_DIMA = os.getenv("TELEGRAM_CHAT_ID_DIMA")
 USER_IDS = {
     "Andre": TELEGRAM_CHAT_ID,
-    "Dima": TELEGRAM_CHAT_ID_DIMA,
+    # "Dima": TELEGRAM_CHAT_ID_DIMA,
 }
 URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/search/j1/latest/"
-# URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/section/j1/33/"  # Для отладки
+# URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/section/j1/34/"  # Для отладки
 URL_TREND = "https://4score.ru/referee/18910"
 
 

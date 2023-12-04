@@ -1,6 +1,6 @@
 import os
 
-import app_logger
+from config import app_logger
 
 logger = app_logger.get_logger(__name__)
 if not os.path.isdir("data"):
@@ -32,7 +32,7 @@ def read_file() -> list:
     """
     try:
         with open(DATA_FILE_NAME, "r", encoding="utf-8") as file:
-            logger.info(f"Считываем файл: {DATA_FILE_NAME} для передачи в переменную")
+            logger.info(f"Считываем файл с отработанными ссылками: {DATA_FILE_NAME}")
             return list(map(str.strip, file.readlines()))
     except Exception as error:
         logger.error(f"Ошибка чтения: {error} Файл: {DATA_FILE_NAME}")
