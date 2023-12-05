@@ -30,6 +30,6 @@ async def echo_message(message):
     await bot.reply_to(message, message.text)
 
 
-async def start_async():
-    await bot.polling()
+def start_async():
+    asyncio.run(bot.polling())
 # asyncio.run(bot.polling())

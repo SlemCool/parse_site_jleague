@@ -3,7 +3,9 @@ import random
 import time
 from parser.parse_4score import get_trends
 from parser.parse_jleague import parse_and_check_referee
+from threading import Thread
 
+from bot import bot_1
 from config import app_logger
 from dotenv import load_dotenv
 from telebot import TeleBot
@@ -105,14 +107,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    Thread(target=main).start()
+    Thread(target=bot_1.start_sync).start()
 
-# python -m nuitka \
-# --follow-imports \
-# --include-package-data=selenium  \
-# --standalone \
-# --include-data-files=.env=.env  \
-# --remove-output \
-# --windows-icon-from-ico=assets\logo.png  \
-# -o JLparser \
-# app\JLparser.py
+
+# python -m nuitka --follow-imports --include-package-data=selenium  --standalone --include-data-files=.env=.env  --remove-output --windows-icon-from-ico=assets\logo.png  -o JLparser app\JLparser.py

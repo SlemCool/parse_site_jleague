@@ -17,7 +17,7 @@ def start_message(message):
     bot.send_message(message.chat.id, "Привет ✌️ ")
 
 
-# def start_sync():
-#     bot.infinity_polling()
+def start_sync():
+    bot.infinity_polling()
 
-bot.infinity_polling()
+# bot.infinity_polling()
