@@ -1,11 +1,11 @@
 import os
 import random
 import time
+from parser.parse_4score import get_trends
+from parser.parse_jleague import parse_and_check_referee
 
 from config import app_logger
 from dotenv import load_dotenv
-from parser.parse_4score import get_trends
-from parser.parse_jleague import parse_and_check_referee
 from telebot import TeleBot
 
 logger = app_logger.get_logger(__name__)
@@ -115,4 +115,4 @@ if __name__ == "__main__":
 # --remove-output \
 # --windows-icon-from-ico=assets\logo.png  \
 # -o JLparser \
-# app\main.py
+# app\JLparser.py
