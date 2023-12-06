@@ -28,7 +28,7 @@ REGEX_REF = r"\w+\s\w+"
 
 def random_interval() -> None:
     """Sleep random interval"""
-    time.sleep(random.randint(2, 7))
+    time.sleep(random.randint(2, 6))
 
 
 def parse_and_check_referee(url: str) -> Optional[List[str]]:
