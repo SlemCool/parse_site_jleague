@@ -11,8 +11,8 @@ from selenium.webdriver.remote.webelement import WebElement
 from seleniumbase import SB
 
 logger = app_logger.get_logger(__name__)
-create_data_file()
-
+DATA_FILE_URL = "data/event_data.txt"
+create_data_file(DATA_FILE_URL)
 
 LOCATOR = {
     "match_events": (By.CSS_SELECTOR, "[class='match']"),
@@ -21,8 +21,8 @@ LOCATOR = {
     "match_referee": (By.TAG_NAME, "td"),
 }
 ENG_URL = "https://www.jleague.co/match/j1/"
-REF_JP = "福島 孝一郎"
-REF_ENG = "Koichiro FUKUSHIMA"
+REF_JP_NAME = "福島 孝一郎"
+REF_ENG_NAME = "Koichiro FUKUSHIMA"
 REGEX_REF = r"\w+\s\w+"
 
 
@@ -32,7 +32,7 @@ def random_interval() -> None:
 
 
 def parse_and_check_referee(url: str) -> Optional[List[str]]:
-    """Get links and check match
+    """Get all links and check match
 
     Args:
         url (str): Japan site reference
@@ -47,23 +47,23 @@ def parse_and_check_referee(url: str) -> Optional[List[str]]:
             page_load_strategy="eager",
             block_images=True,
         ) as driver:
-            logger.warning(f"Проверяем сайт: {url}")
+            logger.info(f"Проверяем сайт: {url}")
             driver.get(url)
             games = driver.find_elements(*LOCATOR["match_events"])
-            logger.warning(f"Найдено: {len(games)} матчей")
+            logger.info(f"Найдено: {len(games)} матчей")
             if not games:
-                logger.warning("На главной странице не найдено игр")
+                logger.info("На странице не найдено игр")
                 return None
 
             games_urls = []
-            checked_games_url = read_file()
+            checked_games_url = read_file(DATA_FILE_URL)
             for game in games:
                 game_url = check_url(game, checked_games_url)
                 if game_url:
                     games_urls.append(game_url)
 
             if not games_urls:
-                logger.warning("Нет ссылок для проверки")
+                logger.info("Нет ссылок для проверки")
                 return None
 
             for game_url_jp in games_urls:
@@ -82,20 +82,21 @@ def check_url(game: WebElement, checked_games_url: list) -> Optional[str]:
 
     Args:
         game (WebElement): The game element to check.
+        checked_games_url (list): Checked games url.
 
     Returns:
         str or None: The game URL if the event is in the 'live' status,
             None if the event has already been processed.
     """
     game_url = game.find_element(*LOCATOR["match_url"]).get_attribute("href")
-    logger.warning(f"Проверяем ссылку на валидность: {game_url}")
+    logger.info(f"Проверяем ссылку на валидность: {game_url}")
     if game_url in checked_games_url:
-        logger.warning("Событие отработано.")
+        logger.info("Событие отработано.")
         return None
     if "preview" not in game_url.split("/"):
-        logger.warning("!! Нужное событие в статусе 'live' !!")
+        logger.info("Можно проверять событие в статусе 'live'")
         return game_url
-    logger.warning("Событие в статусе 'preview'")
+    logger.info("Пропускаем событие ещё в статусе 'preview'")
 
 
 def check_game(driver: WebDriver, game_url_jp: str) -> Optional[List[str]]:
@@ -113,7 +114,7 @@ def check_game(driver: WebDriver, game_url_jp: str) -> Optional[List[str]]:
 
     """
     try:
-        logger.warning(f"Проверяем матч: {game_url_jp}")
+        logger.info(f"Проверяем матч: {game_url_jp}")
         data_match_info = []
         driver.get(game_url_jp)
         random_interval()
@@ -121,16 +122,16 @@ def check_game(driver: WebDriver, game_url_jp: str) -> Optional[List[str]]:
             info_block = driver.find_element(*LOCATOR["match_info"])
             col_ref = info_block.find_elements(*LOCATOR["match_referee"])[3]
             referee = col_ref.text.replace("\u3000", " ")
-            logger.warning(f"Судья в матче: {referee}")
-            if REF_JP == referee:
-                write_file(game_url_jp)
-                data_match_info.append(REF_ENG)
+            logger.info(f"Судья в матче: {referee}")
+            if REF_JP_NAME == referee:
+                write_file(game_url_jp, DATA_FILE_URL)
+                data_match_info.append(REF_ENG_NAME)
                 data_match_info.append(game_url_jp)
-                raw_url_jp = game_url_jp.split("/")
-                data_match_info.append(ENG_URL + raw_url_jp[5] + raw_url_jp[6])
+                split_url_jp = game_url_jp.split("/")
+                data_match_info.append(ENG_URL + split_url_jp[5] + split_url_jp[6])
                 return data_match_info
             if re.match(REGEX_REF, referee):
-                write_file(game_url_jp)
+                write_file(game_url_jp, DATA_FILE_URL)
         return None
     except Exception as error:
         logger.error(f"Ошибка: {error} в получении информации о событии: {game_url_jp}")

@@ -5,22 +5,15 @@ from parser.parse_4score import get_trends
 from parser.parse_jleague import parse_and_check_referee
 from threading import Thread
 
-from bot import bot_1
+from bot import main_bot
 from config import app_logger
 from dotenv import load_dotenv
-from telebot import TeleBot
 
 logger = app_logger.get_logger(__name__)
 load_dotenv()
 
-
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-TELEGRAM_CHAT_ID_DIMA = os.getenv("TELEGRAM_CHAT_ID_DIMA")
-USER_IDS = {
-    "Andre": TELEGRAM_CHAT_ID,
-    # "Dima": TELEGRAM_CHAT_ID_DIMA,
-}
+TELEGRAM_ID_ADMIN = os.getenv("TELEGRAM_CHAT_ID")
 URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/search/j1/latest/"
 # URL_JLEAGUE_LATEST = "https://www.jleague.jp/match/section/j1/34/"  # Для отладки
 URL_TREND = "https://4score.ru/referee/18910"
@@ -36,26 +29,7 @@ def check_tokens() -> bool:
     Returns:
         bool
     """
-    return all((TELEGRAM_TOKEN, TELEGRAM_CHAT_ID, TELEGRAM_CHAT_ID_DIMA))
-
-
-def send_message(bot: TeleBot, message: str) -> None:
-    """Sending a message to the user
-
-    Args:
-        bot (TeleBot): bot instance
-        message (str): text message
-        chat_id (str): user id
-    """
-    logger.info("Начало отправки сообщения в Telegram")
-    try:
-        for user_id in USER_IDS.values():
-            bot.send_message(user_id, message, disable_web_page_preview=True)
-            logger.info(f"Сообщение отправлено пользователю: '{user_id}'")
-    except Exception as error:
-        logger.error(
-            f"Пользователю: '{user_id}' не получилось отправить сообщение: {error}"
-        )
+    return all((TELEGRAM_TOKEN, TELEGRAM_ID_ADMIN))
 
 
 def collect_event_message(event: list) -> str:
@@ -83,22 +57,22 @@ def main():
     """The main logic of the work of the bot"""
     logger.info("Бот приступает к патрулированию")
     if not check_tokens():
-        logger.critical("Отсутствует хотя бы одна переменная окружения")
-        raise ValueError("Отсутствует хотя бы одна переменная окружения!")
+        message = "Отсутствует хотя бы одна переменная окружения"
+        logger.critical(message)
+        raise ValueError(message)
     logger.info("Переменные прошли проверку")
-    bot = TeleBot(TELEGRAM_TOKEN)
-    message = "Бот \U0001F916 начинает поиск игры. \U0001F50D"
-    bot.send_message(USER_IDS["Andre"], message)
+    message = "\U0001F916 'JLbot' начинает поиск игры. \U0001F50D"
+    main_bot.send_to_user(TELEGRAM_ID_ADMIN, message)
     while True:
         try:
             event_data = parse_and_check_referee(URL_JLEAGUE_LATEST)
             if event_data:
-                logger.warning("Обнаружен нужный матч!!!")
+                logger.warning(f"Обнаружен нужный матч: {event_data[1]}")
                 message = collect_event_message(event_data)
-                send_message(bot, message)
+                main_bot.send_to_all_users(message)
         except Exception as error:
             message = f"Сбой в работе программы: {error}"
-            bot.send_message(USER_IDS["Andre"], message)
+            main_bot.send_to_user(TELEGRAM_ID_ADMIN, message)
             logger.error(message)
         finally:
             retry_interval = rnd_sleep_interval()
@@ -107,9 +81,8 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
     Thread(target=main).start()
-    Thread(target=bot_1.start_sync).start()
+    Thread(target=main_bot.start_bot).start()
 
 
 # python -m nuitka --follow-imports --include-package-data=selenium  --standalone --include-data-files=.env=.env  --remove-output --windows-icon-from-ico=assets\logo.png  -o JLparser app\JLparser.py

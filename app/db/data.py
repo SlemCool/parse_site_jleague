@@ -1,51 +1,63 @@
 import os
+from typing import Union
 
 from config import app_logger
 
 logger = app_logger.get_logger(__name__)
 if not os.path.isdir("data"):
     os.mkdir("data")
-DATA_FILE_NAME = "data/event_data.txt"
 
 
-def write_file(data: str) -> None:
+def write_file(data: Union[list, str], file_name: str, method: str = "a") -> None:
     """Writes data to the file
 
     Args:
-        data (str): data to write
+        data (Union[list, str]): data to write
+        file_name: name of the file to read
+        method (str): method to write
     """
     try:
-        with open(DATA_FILE_NAME, "a", encoding="utf-8") as file:
-            file.write(data + "\n")
-            logger.info(
-                f"Записываем в файл: {DATA_FILE_NAME} отработанную ссылку: {data}"
-            )
+        with open(file_name, method, encoding="utf-8") as file:
+            if type(data) is str:
+                file.write(data + "\n")
+                logger.info(f"Записываем в файл: {file_name} данные: {data}")
+
+            if type(data) is list:
+                for el in data:
+                    file.write(el + "\n")
+                logger.info(f"Записываем в файл: {file_name}")
     except Exception as error:
-        logger.error(f"Ошибка записи: {error} Файл: {DATA_FILE_NAME} Данные: {data}")
+        logger.error(f"Ошибка записи: {error} Файл: {file_name} Данные: {data}")
 
 
-def read_file() -> list:
+def read_file(file_name: str) -> list:
     """Read event data from file
 
+    Args:
+        file_name: name of the file to read
     Returns:
         list: list with url of complied events
     """
     try:
-        with open(DATA_FILE_NAME, "r", encoding="utf-8") as file:
-            logger.info(f"Считываем файл с отработанными ссылками: {DATA_FILE_NAME}")
+        with open(file_name, "r", encoding="utf-8") as file:
+            logger.info(f"Считываем файл: {file_name}")
             return list(map(str.strip, file.readlines()))
     except Exception as error:
-        logger.error(f"Ошибка чтения: {error} Файл: {DATA_FILE_NAME}")
+        logger.error(f"Ошибка чтения: {error} Файл: {file_name}")
 
 
-def create_data_file() -> None:
-    """Creates a new file named "event_data.txt" in UTF-8 encoding
-    If the file already exists, it will not be overwritten."""
+def create_data_file(file_name: str) -> None:
+    """Creates a new file in UTF-8 encoding
+    If the file already exists, it will not be overwritten.
+
+    Args:
+        file_name: name of the file to create
+    """
     try:
-        with open(DATA_FILE_NAME, "x", encoding="utf-8") as _:
-            logger.info(f"Создаем файл для отработанных ссылок: {DATA_FILE_NAME}")
+        with open(file_name, "x", encoding="utf-8") as _:
+            logger.info(f"Создаем файл: {file_name}")
             pass
     except FileExistsError:
-        logger.info(f"Файл: {DATA_FILE_NAME} уже создан. Пропускаем создание")
+        logger.info(f"Файл: {file_name} уже создан. Пропускаем создание")
     except Exception as error:
         logger.error(f"Ошибка создания файла: {error}")
