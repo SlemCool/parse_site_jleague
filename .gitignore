@@ -7,5 +7,5 @@ event_data.txt
 data
 logs
 downloaded_files
-main.dist
-main.build
+JLparser.dist
+JLparser.build
