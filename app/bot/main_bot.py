@@ -82,6 +82,11 @@ def unsubscribe(message: types.Message) -> None:
     bot.send_message(user_id, message)
 
 
+@bot.message_handler(func=lambda message: True)
+def echo_message(message):
+    bot.reply_to(message, message.text)
+
+
 def send_to_user(user_id, message: str) -> None:
     """Sending a message to the user
 
