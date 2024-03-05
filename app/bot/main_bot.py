@@ -9,7 +9,10 @@ logger = app_logger.get_logger(__name__)
 load_dotenv()
 DATA_FILE_USERS = "data/users.txt"
 create_data_file(DATA_FILE_USERS)
+DATA_FILE_SUB_REQUEST = "data/sub_reqst.txt"
+create_data_file(DATA_FILE_SUB_REQUEST)
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+TELEGRAM_ID_ADMIN = os.getenv("TELEGRAM_CHAT_ID")
 
 bot = TeleBot(TELEGRAM_TOKEN)
 
@@ -52,14 +55,45 @@ def subscribe(message: types.Message) -> None:
     """
     user_id = str(message.chat.id)
     user_full_name = message.from_user.full_name
-    message = "📣 Вы добавлены в рассылку. 🪇"
+    message = "📣 Вы отправили заявку на рассылку, ожидайте..."
     subscribers = read_file(DATA_FILE_USERS)
+    subscription_request = read_file(DATA_FILE_SUB_REQUEST)
     if user_id in subscribers:
         message = "Вы уже есть в списках 📜 на рассылку."
+    elif user_id in subscription_request:
+        message = "Ваша заявка на рассмотрении у администратора."
     else:
-        write_file(user_id, DATA_FILE_USERS)
-        logger.info(f"Пользователь: {user_id}-{user_full_name} добавился в рассылку")
+        write_file(user_id, DATA_FILE_SUB_REQUEST)
+        bot.send_message(
+            TELEGRAM_ID_ADMIN, f"Пользователь: {user_id}-{user_full_name} подал заявку"
+        )
+        logger.info(
+            f"Пользователь: {user_id}-{user_full_name} "
+            "подал заявку на добавление в рассылку"
+        )
     bot.send_message(user_id, message)
+
+
+@bot.message_handler(commands=["2988329"])
+def approved_user(message: types.Message) -> None:
+    """Approve the user's application"""
+    logger.info("Начинаем подписывать пользователей")
+    subscribers = read_file(DATA_FILE_USERS)
+    subscription_request = read_file(DATA_FILE_SUB_REQUEST)
+    count_user = 0
+    if subscription_request:
+        for user_id in subscription_request:
+            logger.info(f"Добавляем пользователя: {user_id} в рассылку")
+            if user_id not in subscribers:
+                count_user += 1
+                write_file(user_id, DATA_FILE_USERS)
+                bot.send_message(user_id, "Заявка на добавление одобрена! 🪇")
+    logger.info("Очищаем файл с заявками")
+    subscription_request.clear()
+    write_file(subscription_request, DATA_FILE_SUB_REQUEST, method="w")
+    bot.send_message(
+        TELEGRAM_ID_ADMIN, f"Успешно! Добавлено: {count_user} пользователь(ля, лей)"
+    )
 
 
 @bot.message_handler(commands=["remove_me"])
@@ -124,6 +158,3 @@ def send_to_all_users(message: str) -> None:
 
 def start_bot():
     bot.infinity_polling()
-
-
-# start_bot()
