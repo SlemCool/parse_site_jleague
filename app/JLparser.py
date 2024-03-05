@@ -20,7 +20,7 @@ URL_TREND = "https://4score.ru/referee/18910"
 
 
 def rnd_sleep_interval() -> int:
-    return random.randint(300, 600)
+    return random.randint(120, 360)
 
 
 def check_tokens() -> bool:
