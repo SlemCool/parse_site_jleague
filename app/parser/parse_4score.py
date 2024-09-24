@@ -32,4 +32,4 @@ def get_trends(url: str) -> Optional[str]:
                 return "\n".join(data)
         return None
     except Exception as error:
-        logger.error(f"Ошибка получения трендов {error}")
+        logger.error("Ошибка получения трендов %s", error)

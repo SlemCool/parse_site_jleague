@@ -26,7 +26,7 @@ def start_message(message: types.Message) -> None:
     """
     user_id = message.chat.id
     user_full_name = message.from_user.full_name
-    logger.info(f"Пользователь: {user_id} - {user_full_name} нажал СТАРТ!")
+    logger.info("Пользователь: %s - %s нажал СТАРТ!", user_id, user_full_name)
     bot.send_message(user_id, f"Привет {user_full_name} ✌️")
 
 
@@ -68,8 +68,9 @@ def subscribe(message: types.Message) -> None:
             TELEGRAM_ID_ADMIN, f"Пользователь: {user_id}-{user_full_name} подал заявку"
         )
         logger.info(
-            f"Пользователь: {user_id}-{user_full_name} "
+            "Пользователь: %s-%s "
             "подал заявку на добавление в рассылку"
+            , user_id, user_full_name
         )
     bot.send_message(user_id, message)
 
@@ -83,7 +84,7 @@ def approved_user(message: types.Message) -> None:
     count_user = 0
     if subscription_request:
         for user_id in subscription_request:
-            logger.info(f"Добавляем пользователя: {user_id} в рассылку")
+            logger.info("Добавляем пользователя: %s в рассылку", user_id)
             if user_id not in subscribers:
                 count_user += 1
                 write_file(user_id, DATA_FILE_USERS)
@@ -108,7 +109,7 @@ def unsubscribe(message: types.Message) -> None:
     message = "Вы отказались от рассылки. 🥹"
     subscribers = read_file(DATA_FILE_USERS)
     if user_id in subscribers:
-        logger.info(f"Пользователь: {user_id}-{user_full_name} удалился из рассылки")
+        logger.info("Пользователь: %s-%s удалился из рассылки", user_id, user_full_name)
         subscribers.remove(user_id)
         write_file(subscribers, DATA_FILE_USERS, method="w")
     else:
@@ -128,13 +129,13 @@ def send_to_user(user_id, message: str) -> None:
         user_id (str): user id
         message (str): text message
     """
-    logger.info(f"Начало отправки сообщения для пользователя '{user_id}'")
+    logger.info("Начало отправки сообщения для пользователя '%s'", user_id)
     try:
         bot.send_message(user_id, message)
-        logger.info(f"Сообщение отправлено пользователю: '{user_id}'")
+        logger.info("Сообщение отправлено пользователю: '%s'", user_id)
     except Exception as error:
         logger.error(
-            f"Пользователю: '{user_id}' не получилось отправить сообщение: {error}"
+            "Пользователю: '%s' не получилось отправить сообщение: %s", user_id, error
         )
 
 
@@ -149,10 +150,10 @@ def send_to_all_users(message: str) -> None:
     for user_id in users:
         try:
             bot.send_message(user_id, message, disable_web_page_preview=True)
-            logger.info(f"Сообщение отправлено пользователю: '{user_id}'")
+            logger.info("Сообщение отправлено пользователю: '%s'", user_id)
         except Exception as error:
             logger.error(
-                f"Пользователю: '{user_id}' не получилось отправить сообщение: {error}"
+                "Пользователю: '%s' не получилось отправить сообщение: %s", user_id, error
             )
 
 

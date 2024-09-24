@@ -67,7 +67,7 @@ def main():
         try:
             event_data = parse_and_check_referee(URL_JLEAGUE_LATEST)
             if event_data:
-                logger.warning(f"Обнаружен нужный матч: {event_data[1]}")
+                logger.warning("Обнаружен нужный матч: %s", event_data[1])
                 message = collect_event_message(event_data)
                 main_bot.send_to_all_users(message)
         except Exception as error:
@@ -76,7 +76,7 @@ def main():
             logger.error(message)
         finally:
             retry_interval = rnd_sleep_interval()
-            logger.info(f"Засыпаю на - {retry_interval} сек")
+            logger.info("Засыпаю на - %s сек", retry_interval)
             time.sleep(retry_interval)
 
 

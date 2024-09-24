@@ -47,10 +47,10 @@ def parse_and_check_referee(url: str) -> Optional[List[str]]:
             page_load_strategy="eager",
             block_images=True,
         ) as driver:
-            logger.info(f"Проверяем сайт: {url}")
+            logger.info("Проверяем сайт: %s", url)
             driver.get(url)
             games = driver.find_elements(*LOCATOR["match_events"])
-            logger.info(f"Найдено: {len(games)} матчей")
+            logger.info("Найдено: %s матчей", len(games))
             if not games:
                 logger.info("На странице не найдено игр")
                 return None
@@ -73,7 +73,7 @@ def parse_and_check_referee(url: str) -> Optional[List[str]]:
         return None
 
     except Exception as error:
-        logger.error(f"Ошибка: {error} в получении информации о событии: {url}")
+        logger.error("Ошибка: %s в получении информации о событии: %s", error, url)
 
 
 def check_url(game: WebElement, checked_games_url: list) -> Optional[str]:
@@ -89,7 +89,7 @@ def check_url(game: WebElement, checked_games_url: list) -> Optional[str]:
             None if the event has already been processed.
     """
     game_url = game.find_element(*LOCATOR["match_url"]).get_attribute("href")
-    logger.info(f"Проверяем ссылку на валидность: {game_url}")
+    logger.info("Проверяем ссылку на валидность: %s", game_url)
     if game_url in checked_games_url:
         logger.info("Событие отработано.")
         return None
@@ -114,7 +114,7 @@ def check_game(driver: WebDriver, game_url_jp: str) -> Optional[List[str]]:
 
     """
     try:
-        logger.info(f"Проверяем матч: {game_url_jp}")
+        logger.info("Проверяем матч: %s", game_url_jp)
         data_match_info = []
         driver.get(game_url_jp)
         random_interval()
@@ -122,7 +122,7 @@ def check_game(driver: WebDriver, game_url_jp: str) -> Optional[List[str]]:
             info_block = driver.find_element(*LOCATOR["match_info"])
             col_ref = info_block.find_elements(*LOCATOR["match_referee"])[3]
             referee = col_ref.text.replace("\u3000", " ")
-            logger.info(f"Судья в матче: {referee}")
+            logger.info("Судья в матче: %s", referee)
             if REF_JP_NAME == referee:
                 write_file(game_url_jp, DATA_FILE_URL)
                 data_match_info.append(REF_ENG_NAME)
@@ -134,4 +134,4 @@ def check_game(driver: WebDriver, game_url_jp: str) -> Optional[List[str]]:
                 write_file(game_url_jp, DATA_FILE_URL)
         return None
     except Exception as error:
-        logger.error(f"Ошибка: {error} в получении информации о событии: {game_url_jp}")
+        logger.error("Ошибка: %s в получении информации о событии: %s", error, game_url_jp)
