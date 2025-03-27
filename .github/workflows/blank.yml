@@ -41,10 +41,4 @@ jobs:
       run: |
         SECRET_ID="e6qnqma0a5guihtq01c"
         SECRET_DATA=$(curl -sH "Authorization: Bearer ${{steps.IAMtoken.outputs.IAMTOKEN}}" https://payload.lockbox.api.cloud.yandex.net/lockbox/v1/secrets/$SECRET_ID/payload)
-        if echo "${SECRET_DATA}" | jq empty; then
-          echo "SECRET_DATA=${SECRET_DATA}" >> $GITHUB_OUTPUT
-        else
-          echo "Ошибка: Неверный формат JSON в SECRET_DATA"
-          exit 1
-        fi
       id: getlockboxpayload
