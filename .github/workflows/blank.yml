@@ -1,0 +1,45 @@
+name: CI
+
+permissions:
+  id-token: write # Требуется для запроса JWT-токена
+
+# Controls when the workflow will run
+on:
+  # Запускает выполнение сценария при пуш или пул-реквесте в ветке "main"
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Позволяет запустить сценарий вручную во вкладке Actions
+  workflow_dispatch:
+
+jobs:
+  job:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install OIDC Client from Core Package
+      run: npm install @actions/core @actions/http-client
+    # Получить токен задания рабочего процесса
+    - name: Get Id Token
+      uses: actions/github-script@v7
+      id: tokenid
+      with:
+        script: |
+          const coredemo = require('@actions/core')
+          let id_token = await coredemo.getIDToken()
+          coredemo.setOutput('id_token', id_token)
+    # Обменять токен задания рабочего процесса на IAM-токен сервисного аккаунта в Yandex Cloud
+    - name: GetIAMToken
+      run: |
+        SA_ID="ajecd2de80i5qsmeminj"
+        IAMTOKEN=$(curl -sH "Content-Type: application/x-www-form-urlencoded" -d "grant_type=urn:ietf:params:oauth:grant-type:token-exchange&requested_token_type=urn:ietf:params:oauth:token-type:access_token&audience=$SA_ID&subject_token=${{steps.tokenid.outputs.id_token}}&subject_token_type=urn:ietf:params:oauth:token-type:id_token" -X POST https://auth.yandex.cloud/oauth/token | jq -r '.access_token')
+        echo "IAMToken=${IAMTOKEN}" >> $GITHUB_OUTPUT
+      id: IAMtoken
+    # Запросить значение секрета через API, используя IAM-токен в Yandex Cloud
+    - name: GetLockboxPayload
+      run: |
+        SECRET_ID="e6qelk43nf6sikarevfq"
+        SECRET_DATA=$(curl -sH "Authorization: Bearer ${{steps.IAMtoken.outputs.IAMTOKEN}}" https://payload.lockbox.api.cloud.yandex.net/lockbox/v1/secrets/$SECRET_ID/payload)
+        echo "SECRET_DATA=${SECRET_DATA}" >> $GITHUB_OUTPUT
+      id: getlockboxpayload
