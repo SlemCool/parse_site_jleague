@@ -45,6 +45,6 @@ jobs:
           echo "SECRET_DATA=${SECRET_DATA}" >> $GITHUB_OUTPUT
         else
           echo "Ошибка: Неверный формат JSON в SECRET_DATA"
-        exit 1
+          exit 1
         fi
       id: getlockboxpayload
